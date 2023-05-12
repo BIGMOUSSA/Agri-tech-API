@@ -1,0 +1,6 @@
+*cache*
+.vscode/
+.venv/
+flagged/
+*.DS_Store
+src/app.py
