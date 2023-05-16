@@ -28,9 +28,9 @@ class Land(BaseModel):
     """
 
     ## Input features
-    N: int
-    P: int
-    K: int
+    N: float
+    P: float
+    K: float
     temperature: float
     humidity: float
     ph: float
@@ -40,7 +40,7 @@ class Land(BaseModel):
 # Setup
 ## variables and constants
 DIRPATH = os.path.dirname(os.path.realpath(__file__))
-ml_core_fp = os.path.join(DIRPATH, "assets", "ml", "crop_recommandation.pkl")
+ml_core_fp = os.path.join(DIRPATH, "assets", "ml", "crop_recommandation2.pkl")
 
 ## Loading
 ml_components_dict = load_ml_components(fp=ml_core_fp)
@@ -98,15 +98,19 @@ async def predict(land: Land):
                 "rainfall": [land.rainfall],
             }
         )
-        print(f"[Info] Input data as dataframe :\n{df.to_markdown()}")
+        print(f"[Info] Input data as dataframe :\n{df}")
         # df.columns = num_cols+cat_cols
         # df = df[num_cols+cat_cols] # reorder the dateframe
 
         # ML part
         ##### Tu peux mettre ton scaler sur la ligne suivante
+        #scaler = ml_components_dict["scaler"]
+        #df = scaler.fit_transform(df)
         data_ready = df
         output = model.predict_proba(data_ready)
-
+        print('____________')
+        print(output)
+        print(labels)
         ## store confidence score/ probability for the predicted class
         confidence_score = output.max(axis=-1)
         df["confidence score"] = confidence_score
