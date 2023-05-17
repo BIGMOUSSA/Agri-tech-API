@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import pandas as pd
 import pickle, os
 from fastapi.middleware.cors import CORSMiddleware
+import heapq
 
 
 # Useful functions
@@ -104,40 +105,52 @@ async def predict(land: Land):
 
         # ML part
         ##### Tu peux mettre ton scaler sur la ligne suivante
-        #scaler = ml_components_dict["scaler"]
-        #df = scaler.fit_transform(df)
+        scaler = ml_components_dict["scaler"]
+        df = scaler.transform(df)
         data_ready = df
         output = model.predict_proba(data_ready)
-        print('____________')
+        
         print(output)
-        print(labels)
+        print('uiytretttttttttttttttttttttttt')
+        output = list(output[0])
+        confidence_score_max = output.index(max(output))
+        confidence_score = max(output)
+        predicted_label = labels[confidence_score_max]
+        print(confidence_score)
+        print('uiytretttttttttttttttttttttttt')
         ## store confidence score/ probability for the predicted class
-        confidence_score = output.max(axis=-1)
-        df["confidence score"] = confidence_score
-
+        #confidence_score = output.max(axis=-1)
+        #print(confidence_score[0])
+        #df["confidence score"] = confidence_score[0]
+        
+        #print('tttttttttttttttttttttttttà')
         ## get index of the predicted class
-        predicted_idx = output.argmax(axis=-1)
+        #predicted_idx = output.argmax(axis=-1)
 
         # store index then replace by the matching label
-        df["predicted label"] = predicted_idx
-        predicted_label = df["predicted label"].replace(idx_to_labels)
-        df["predicted label"] = predicted_label
+        #df["predicted label"] = predicted_idx
+        #predicted_label = df["predicted label"].replace(idx_to_labels)
+        #df["predicted label"] = predicted_label
         print(
-            f"✅ The best crop for this land is : '{predicted_label[0]}' with a confidence score of '{confidence_score[0]}' .",
+            f"✅ The best crop for this land is : '{predicted_label}' with a confidence score of '{confidence_score}' .",
         )
         msg = "Execution went fine"
         code = 200
-        pred = df.to_dict("records")
-
+        
+        pred = {
+            "confidence_score" : confidence_score.item(),
+            "predicted_label" : predicted_label
+        }
     except Exception as e:
         print(e)
         print(f"🚨 Something went wrong during the prediction.")
         msg = "Execution went wrong"
         code = 0
         pred = None
-
+    
     result = {"execution_msg": msg, "execution_code": code, "predictions": pred}
     return result
+    
 
 
 if __name__ == "__main__":
