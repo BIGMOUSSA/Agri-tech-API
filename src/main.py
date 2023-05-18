@@ -154,4 +154,4 @@ async def predict(land: Land):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", reload=True, port=5000)
